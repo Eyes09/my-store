@@ -1,23 +1,42 @@
-import ProductCard from './ProductCard';
+import { useState, useEffect } from 'react';
+import UserCard from './UserCard';
 
 export default function App() {
-  const products = [
-    { id: 1, name: 'Mechanical Keyboard', price: 120, image: '/keyboard.jpg' },
-    { id: 2, name: 'Wireless Mouse', price: 45, image: '/mouse.jpg' },
-    { id: 3, name: 'Desk Mat', price: 25, image: '/desk_mat.jpg' },
-  ];
+  // Task 1: Setup State
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Task 2: Fetch Data
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/users')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setUsers(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []); // Empty dependency array
+
+  // Task 3: Map UI (Handling loading and error states first)
+  if (loading) return <div style={{ padding: '2rem' }}>Loading users...</div>;
+  if (error) return <div style={{ padding: '2rem', color: 'red' }}>Error: {error}</div>;
 
   return (
     <div style={{ padding: '2rem' }}>
-      <h1>My Store</h1>
+      <h1>User Directory</h1>
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-        {products.map(product => (
-          <ProductCard 
-            key={product.id} 
-            name={product.name} 
-            price={product.price}
-            image={product.image} 
-          />
+        {/* Task 3 & 4: Map users to UserCard and provide unique 'key' to prevent console warnings */}
+        {users.map((user) => (
+          <UserCard key={user.id} user={user} />
         ))}
       </div>
     </div>
